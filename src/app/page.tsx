@@ -1,69 +1,66 @@
+import { RegistrationForm } from "@/components/registration-form";
+import { DniLookup } from "@/components/dni-lookup";
+import { Separator } from "@/components/ui/separator";
+import { PhotoCarousel } from "@/components/photo-carousel";
+import { Sponsors } from "@/components/sponsors";
 import Image from "next/image";
 
 export default function Home() {
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert h-5 w-[100px]"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the{" "}
-            <code className="rounded bg-black/[.06] px-1.5 py-0.5 font-mono text-[0.9em] dark:bg-white/[.08]">
-              page.tsx
-            </code>{" "}
-            file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
-        </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
+    <main className="min-h-screen bg-slate-50/50 dark:bg-slate-950/20 py-12">
+      <div className="container mx-auto px-4 max-w-2xl space-y-10">
+        
+        {/* Hero / Header Section */}
+        <header className="flex flex-col items-center text-center space-y-4">
+          <div className="relative w-28 h-28 md:w-32 md:h-32 transition-transform duration-300 hover:scale-105">
             <Image
-              className="dark:invert h-[14px] w-4"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={14}
+              src="/assets/mgrc.webp"
+              alt="Escudo MGRC"
+              fill
+              className="object-contain"
+              priority
             />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
-      </main>
-    </div>
+          </div>
+          <h1 className="text-4xl md:text-5xl font-extrabold tracking-tight text-slate-900 dark:text-slate-50">
+            MGRCorre
+          </h1>
+          <p className="text-lg text-slate-600 dark:text-slate-300 max-w-lg leading-relaxed">
+            Te invitamos a participar de esta carrera dentro del club con el objetivo de recaudar para la{" "}
+            <span className="text-[#007749] dark:text-[#00a86b] font-bold">
+              Gira Internacional a Sudáfrica
+            </span>
+          </p>
+        </header>
+
+        {/* Sponsors Marquee */}
+        <section>
+          <Sponsors />
+        </section>
+
+        {/* Photo Gallery Carousel */}
+        <section className="py-2">
+          <PhotoCarousel />
+        </section>
+
+        <Separator className="my-6" />
+
+        {/* Registration Form */}
+        <section className="space-y-6">
+          <div className="text-center md:text-left">
+            <h2 className="text-2xl font-bold tracking-tight">Formulario de inscripción</h2>
+            <p className="text-sm text-muted-foreground mt-1">Completa los datos de los participantes.</p>
+          </div>
+          <RegistrationForm />
+        </section>
+
+        <Separator className="my-6" />
+
+        {/* DNI State Lookup */}
+        <section>
+          <DniLookup />
+        </section>
+        
+      </div>
+    </main>
   );
 }
