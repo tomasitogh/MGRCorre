@@ -1,45 +1,29 @@
 "use client";
 
 import { useState } from "react";
+import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-
-interface RunnerResult {
-  name: string;
-  runnerNumber: number;
-  age: number;
-  raceType: string;
-  raceCategory?: string;
-  shirtSize: string;
-  status: string;
-}
+import { lookupByDniAction, type LookupRunner } from "@/app/actions/lookup";
 
 export function DniLookup() {
   const [dni, setDni] = useState("");
-  const [results, setResults] = useState<RunnerResult[] | null>(null);
-  const [error, setError] = useState<string | null>(null);
+  const [results, setResults] = useState<LookupRunner[] | null>(null);
   const [loading, setLoading] = useState(false);
 
   async function handleSearch() {
     if (!dni.trim()) return;
     setLoading(true);
-    setError(null);
     setResults(null);
 
     try {
-      const res = await fetch(`/api/lookup?dni=${encodeURIComponent(dni)}`);
-      if (!res.ok) {
-        const data = await res.json();
-        setError(data.error || "No se encontraron inscripciones");
-        return;
-      }
-      const data = await res.json();
-      setResults(data.runners);
-    } catch {
-      setError("Error de conexión");
+      const runners = await lookupByDniAction(dni);
+      setResults(runners);
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "No se encontraron inscripciones");
     } finally {
       setLoading(false);
     }
@@ -79,10 +63,6 @@ export function DniLookup() {
             </Button>
           </div>
         </div>
-
-        {error && (
-          <p className="text-sm text-destructive">{error}</p>
-        )}
 
         {results && results.length > 0 && (
           <div className="space-y-2">

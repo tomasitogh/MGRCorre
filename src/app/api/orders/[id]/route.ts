@@ -2,19 +2,25 @@ import { NextRequest, NextResponse } from "next/server";
 import { connectDB } from "@/lib/mongodb";
 import { Order } from "@/models/Order";
 import { Runner } from "@/models/Runner";
+import { isAdminAuthenticated } from "@/lib/auth";
 
 export async function GET(
   _req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    if (!(await isAdminAuthenticated())) {
+      return NextResponse.json({ error: "No autorizado" }, { status: 401 });
+    }
     await connectDB();
     const { id } = await params;
-    const order = await Order.findById(id).lean();
+    const [order, runners] = await Promise.all([
+      Order.findById(id).lean(),
+      Runner.find({ orderId: id }).lean(),
+    ]);
     if (!order) {
       return NextResponse.json({ error: "Orden no encontrada" }, { status: 404 });
     }
-    const runners = await Runner.find({ orderId: order._id }).lean();
     return NextResponse.json({ ...order, runners });
   } catch (error) {
     console.error("Error fetching order:", error);
@@ -27,6 +33,9 @@ export async function PATCH(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    if (!(await isAdminAuthenticated())) {
+      return NextResponse.json({ error: "No autorizado" }, { status: 401 });
+    }
     await connectDB();
     const { id } = await params;
     const { status } = await req.json();

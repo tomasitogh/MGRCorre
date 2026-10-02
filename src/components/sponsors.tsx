@@ -1,7 +1,3 @@
-"use client";
-
-import React from "react";
-
 const SPONSORS = [
   {
     name: "Springbok Fit",
@@ -64,7 +60,7 @@ const SPONSORS = [
 
 export function Sponsors() {
   // Duplicate the list of sponsors to create a seamless infinite scrolling effect
-  const marqueeItems = [...SPONSORS, ...SPONSORS, ...SPONSORS];
+  const marqueeItems = [...SPONSORS, ...SPONSORS];
 
   return (
     <div className="w-full py-6 bg-slate-100/50 dark:bg-slate-900/30 rounded-2xl border border-muted/30 overflow-hidden space-y-3">

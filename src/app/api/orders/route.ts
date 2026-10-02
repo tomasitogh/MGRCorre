@@ -3,21 +3,27 @@ import { connectDB } from "@/lib/mongodb";
 import { Order } from "@/models/Order";
 import { Runner } from "@/models/Runner";
 import { getNextSequence } from "@/models/Counter";
+import { formSchema, PRICES, get7kCategory } from "@/lib/registration";
+import { isAdminAuthenticated } from "@/lib/auth";
 
+// POST público: lo usa el formulario de inscripción (también expuesto como Server Action).
 export async function POST(req: NextRequest) {
   try {
     await connectDB();
     const body = await req.json();
 
-    const { participants, phone, paymentMethod, paymentReceiptUrl } = body;
-
-    if (!participants?.length || !phone || !paymentMethod) {
-      return NextResponse.json({ error: "Faltan campos obligatorios" }, { status: 400 });
+    const parsed = formSchema.safeParse(body);
+    if (!parsed.success) {
+      return NextResponse.json(
+        { error: parsed.error.issues[0]?.message || "Datos inválidos" },
+        { status: 400 }
+      );
     }
 
-    const PRICES: Record<string, number> = { "500m": 3000, "3k": 5000, "7k": 8000 };
+    const { participants, phone, paymentMethod, paymentReceiptUrl } = parsed.data;
+
     const totalAmount = participants.reduce(
-      (sum: number, p: { raceType: string }) => sum + (PRICES[p.raceType] || 0),
+      (sum, p) => sum + (PRICES[p.raceType] || 0),
       0
     );
 
@@ -29,7 +35,12 @@ export async function POST(req: NextRequest) {
       status: "en revisión",
     });
 
-    const runners = [];
+    const runners: {
+      name: string;
+      runnerNumber: number;
+      raceType: string;
+      raceCategory?: string;
+    }[] = [];
     for (const p of participants) {
       const runnerNumber = await getNextSequence("runnerNumber");
       const runner = await Runner.create({
@@ -37,8 +48,11 @@ export async function POST(req: NextRequest) {
         name: p.name,
         dni: p.dni,
         age: p.age,
-        raceType: p.raceType,
-        raceCategory: p.raceCategory || undefined,
+        raceType: p.raceType as "500m" | "3k" | "7k",
+        raceCategory:
+          p.raceType === "7k"
+            ? (get7kCategory(p.age) as "15-30" | "30-40" | "40-50+" | undefined)
+            : undefined,
         shirtSize: p.shirtSize,
         orderId: order._id,
       });
@@ -61,19 +75,34 @@ export async function POST(req: NextRequest) {
   }
 }
 
+// GET admin: requiere sesión (defensa en profundidad además del proxy).
 export async function GET() {
   try {
+    if (!(await isAdminAuthenticated())) {
+      return NextResponse.json({ error: "No autorizado" }, { status: 401 });
+    }
     await connectDB();
-    const orders = await Order.find().sort({ createdAt: -1 }).lean();
 
-    const ordersWithCount = await Promise.all(
-      orders.map(async (order) => {
-        const count = await Runner.countDocuments({ orderId: order._id });
-        return { ...order, participantsCount: count };
-      })
-    );
+    // Una sola agregación en vez de N+1 countDocuments.
+    const orders = await Order.aggregate([
+      { $sort: { createdAt: -1 } },
+      {
+        $lookup: {
+          from: "runners",
+          localField: "_id",
+          foreignField: "orderId",
+          as: "runners",
+        },
+      },
+      {
+        $addFields: { participantsCount: { $size: "$runners" } },
+      },
+      {
+        $project: { runners: 0 },
+      },
+    ]);
 
-    return NextResponse.json(ordersWithCount);
+    return NextResponse.json(orders);
   } catch (error) {
     console.error("Error fetching orders:", error);
     return NextResponse.json({ error: "Error interno del servidor" }, { status: 500 });

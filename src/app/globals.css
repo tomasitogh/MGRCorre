@@ -73,6 +73,10 @@
   --chart-4: oklch(0.828 0.189 84);
   --chart-5: oklch(0.769 0.188 70);
   --radius: 0.625rem;
+  /* Motion tokens */
+  --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+  --ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
+  --ease-drawer: cubic-bezier(0.32, 0.72, 0, 1);
   --sidebar: oklch(0.985 0 0);
   --sidebar-foreground: oklch(0.145 0 0);
   --sidebar-primary: oklch(0.205 0 0);
@@ -157,6 +161,85 @@
   animation: marquee 25s linear infinite;
 }
 
-.animate-marquee:hover {
-  animation-play-state: paused;
+@media (hover: hover) and (pointer: fine) {
+  .animate-marquee:hover {
+    animation-play-state: paused;
+  }
+}
+
+/* ---- Reduced motion: menos movimiento, no cero feedback ---- */
+@media (prefers-reduced-motion: reduce) {
+  .animate-card-entry {
+    animation: none;
+  }
+  .animate-marquee {
+    animation: none;
+  }
+}
+
+/* ---- Entradas de la landing ---- */
+@keyframes heroIn {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.animate-hero {
+  animation: heroIn 450ms var(--ease-out) both;
+}
+
+/* Revelado por scroll: transición (interruptible), no keyframes */
+.reveal {
+  opacity: 0;
+  transform: translateY(12px) scale(0.98);
+  transition:
+    opacity 300ms var(--ease-out),
+    transform 300ms var(--ease-out);
+}
+
+.reveal[data-visible="true"] {
+  opacity: 1;
+  transform: none; /* evita blur subpixel permanente en mobile */
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-hero {
+    animation: none;
+  }
+  .reveal {
+    transform: none;
+    transition: opacity 200ms ease; /* opacidad sí, movimiento no */
+  }
+}
+
+/* ---- Flujo de inscripción ---- */
+@keyframes popIn {
+  from { transform: scale(0.85); opacity: 0.4; }
+  to { transform: scale(1); opacity: 1; }
+}
+
+/* Número del stepper: remount por key={count}, siempre mount-only */
+.animate-pop {
+  animation: popIn 160ms var(--ease-out);
+}
+
+@keyframes slideOutCard {
+  from { opacity: 1; transform: none; }
+  to { opacity: 0; transform: translateY(10px) scale(0.98); }
+}
+
+.animate-card-exit {
+  animation: slideOutCard 180ms var(--ease-out) forwards;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-pop,
+  .animate-card-exit {
+    animation: none;
+  }
 }

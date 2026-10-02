@@ -1,30 +1,48 @@
+import { Suspense } from "react";
 import { RegistrationForm } from "@/components/registration-form";
 import { DniLookup } from "@/components/dni-lookup";
 import { Separator } from "@/components/ui/separator";
 import { PhotoCarousel } from "@/components/photo-carousel";
 import { Sponsors } from "@/components/sponsors";
+import { Reveal } from "@/components/reveal";
 import Image from "next/image";
 
 export default function Home() {
+  // Se lee en el servidor: no hace falta exponer NEXT_PUBLIC_* al cliente.
+  const paymentAlias =
+    process.env.PAYMENT_ALIAS ?? process.env.NEXT_PUBLIC_PAYMENT_ALIAS ?? "";
+  const paymentName =
+    process.env.PAYMENT_NAME ?? process.env.NEXT_PUBLIC_PAYMENT_NAME ?? "";
+
   return (
-    <main className="min-h-screen bg-slate-50/50 dark:bg-slate-950/20 py-12">
+    <main className="min-h-screen overflow-x-clip bg-slate-50/50 dark:bg-slate-950/20 py-10">
       <div className="container mx-auto px-4 max-w-2xl space-y-10">
-        
-        {/* Hero / Header Section */}
-        <header className="flex flex-col items-center text-center space-y-4">
-          <div className="relative w-28 h-28 md:w-32 md:h-32 transition-transform duration-300 hover:scale-105">
+
+        {/* Bienvenida: entra al instante, coreografiada con stagger de 60ms */}
+        <header className="flex flex-col items-center text-center space-y-5 pt-4">
+          <h1
+            className="animate-hero text-3xl sm:text-4xl md:text-5xl font-extrabold tracking-tight text-balance text-slate-900 dark:text-slate-50"
+          >
+            Bienvenido a la carrera{" "}
+            <span className="text-[#007749] dark:text-[#00a86b]">MGRC Corre</span>
+          </h1>
+          <div
+            className="animate-hero relative w-24 h-24 md:w-28 md:h-28"
+            style={{ animationDelay: "60ms" }}
+          >
             <Image
               src="/assets/mgrc.webp"
               alt="Escudo MGRC"
               fill
               className="object-contain"
               priority
+              sizes="(max-width: 768px) 96px, 112px"
             />
           </div>
-          <h1 className="text-4xl md:text-5xl font-extrabold tracking-tight text-slate-900 dark:text-slate-50">
-            MGRCorre
-          </h1>
-          <p className="text-lg text-slate-600 dark:text-slate-300 max-w-lg leading-relaxed">
+          <p
+            className="animate-hero text-base md:text-lg text-slate-600 dark:text-slate-300 max-w-lg leading-relaxed"
+            style={{ animationDelay: "120ms" }}
+          >
             Te invitamos a participar de esta carrera dentro del club con el objetivo de recaudar para la{" "}
             <span className="text-[#007749] dark:text-[#00a86b] font-bold">
               Gira Internacional a Sudáfrica
@@ -32,34 +50,38 @@ export default function Home() {
           </p>
         </header>
 
-        {/* Sponsors Marquee */}
-        <section>
+        {/* Sponsors */}
+        <Reveal>
           <Sponsors />
-        </section>
+        </Reveal>
 
-        {/* Photo Gallery Carousel */}
-        <section className="py-2">
+        {/* Fotos */}
+        <Reveal delay={60}>
           <PhotoCarousel />
-        </section>
+        </Reveal>
 
         <Separator className="my-6" />
 
-        {/* Registration Form */}
-        <section className="space-y-6">
-          <div className="text-center md:text-left">
-            <h2 className="text-2xl font-bold tracking-tight">Formulario de inscripción</h2>
-            <p className="text-sm text-muted-foreground mt-1">Completa los datos de los participantes.</p>
-          </div>
-          <RegistrationForm />
-        </section>
+        {/* Inscripción */}
+        <Reveal>
+          <section className="space-y-6">
+            <div className="text-center">
+              <h2 className="text-2xl font-bold tracking-tight">Formulario de inscripción</h2>
+              <p className="text-sm text-muted-foreground mt-1">Completa los datos de los participantes.</p>
+            </div>
+            <Suspense fallback={<div className="h-64 rounded-xl bg-muted animate-pulse" aria-hidden="true" />}>
+              <RegistrationForm paymentAlias={paymentAlias} paymentName={paymentName} />
+            </Suspense>
+          </section>
+        </Reveal>
 
         <Separator className="my-6" />
 
-        {/* DNI State Lookup */}
-        <section>
+        {/* Consulta por DNI */}
+        <Reveal>
           <DniLookup />
-        </section>
-        
+        </Reveal>
+
       </div>
     </main>
   );
