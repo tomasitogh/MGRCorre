@@ -6,9 +6,10 @@ import Image from "next/image";
 import { cn } from "@/lib/utils";
 
 const PHOTOS = [
-  "/assets/photo1.png",
-  "/assets/photo2.png",
-  "/assets/photo3.png"
+  { src: "/assets/photo1.jpg", position: "center" },
+  { src: "/assets/photo2.jpg", position: "50% 60%" },
+  { src: "/assets/photo3.jpg", position: "center" },
+  { src: "/assets/photo4.jpg", position: "center" },
 ];
 
 const SWIPE_DISTANCE_PX = 60;
@@ -94,12 +95,13 @@ export function PhotoCarousel() {
           )}
           style={{ transform: `translateX(calc(-${currentIndex * 100}% + ${dragOffset}px))` }}
         >
-          {PHOTOS.map((src, index) => (
-            <div key={index} className="w-full h-full flex-shrink-0 relative">
+          {PHOTOS.map(({ src, position }, index) => (
+            <div key={src} className="w-full h-full flex-shrink-0 relative">
               <Image
                 src={src}
                 alt={`Carrera MGRCorre foto ${index + 1}`}
                 fill
+                style={{ objectPosition: position }}
                 className="object-cover"
                 sizes="(max-width: 768px) 100vw, 672px"
                 priority={index === 0}
