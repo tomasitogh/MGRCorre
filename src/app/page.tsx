@@ -24,7 +24,7 @@ export default function Home() {
             className="animate-hero text-3xl sm:text-4xl md:text-5xl font-extrabold tracking-tight text-balance text-slate-900 dark:text-slate-50"
           >
             Bienvenido a la carrera{" "}
-            <span className="text-[#007749] dark:text-[#00a86b]">MGRC Corre</span>
+            <span className="text-primary dark:text-red-500">MGRC Corre</span>
           </h1>
           <div
             className="animate-hero relative w-24 h-24 md:w-28 md:h-28"
@@ -44,7 +44,7 @@ export default function Home() {
             style={{ animationDelay: "120ms" }}
           >
             Te invitamos a participar de esta carrera dentro del club con el objetivo de recaudar para la{" "}
-            <span className="text-[#007749] dark:text-[#00a86b] font-bold">
+            <span className="text-primary dark:text-red-500 font-bold">
               Gira Internacional a Sudáfrica
             </span>
           </p>
